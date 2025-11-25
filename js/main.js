@@ -7,7 +7,7 @@ function updateIndicatorPosition() {
     // Если высота viewport изменилась (панель появилась/исчезла)
     if (Math.abs(currentViewportHeight - lastViewportHeight) > 10) {
         // Рассчитываем позицию в пикселях от верха
-        const topInPixels = currentViewportHeight * 0.8;
+        const topInPixels = currentViewportHeight * 0.7;
         indicator.style.top = `${topInPixels}px`;
         
         lastViewportHeight = currentViewportHeight;
