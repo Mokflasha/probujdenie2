@@ -327,7 +327,7 @@ h1{
 	font-family: "Montserrat exlt";
 	font-size: calc(var(--index)/1.2);
 	position: absolute;
-	top: 80%;
+	top: 75%;
 	width: 36%;
 	left: 2rem;
 	text-transform: uppercase;
