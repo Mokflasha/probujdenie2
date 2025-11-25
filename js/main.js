@@ -1,27 +1,45 @@
 let lastViewportHeight = window.innerHeight;
+let isSliderScrolled = false;
+let updateTimeout;
 
 function updateIndicatorPosition() {
     const indicator = document.querySelector('.slider-indicator');
+    const slider = document.querySelector('.slider');
     const currentViewportHeight = window.innerHeight;
     
-    // Если высота viewport изменилась (панель появилась/исчезла)
+    // Проверяем прокрутку слайдера
+    const sliderRect = slider.getBoundingClientRect();
+    const scrollPercentage = Math.abs(sliderRect.top) / window.innerHeight * 100;
+    isSliderScrolled = scrollPercentage > 10;
+    
+    console.log('Scroll percentage:', scrollPercentage, 'Scrolled:', isSliderScrolled);
+    
+    // Если слайдер прокручен больше чем на 10% - выходим
+    if (isSliderScrolled) {
+        return;
+    }
+    
+    // Если высота изменилась и слайдер не прокручен
     if (Math.abs(currentViewportHeight - lastViewportHeight) > 10) {
-        // Рассчитываем позицию в пикселях от верха
-        const topInPixels = currentViewportHeight * 0.7;
-        indicator.style.top = `${topInPixels}px`;
-        
+        const newTopPosition = currentViewportHeight * 0.8;
+        indicator.style.top = `${newTopPosition}px`;
         lastViewportHeight = currentViewportHeight;
-        console.log('Indicator position updated:', topInPixels, 'px');
     }
 }
 
-// Отслеживаем изменения размера окна
-window.addEventListener('resize', updateIndicatorPosition);
-window.addEventListener('scroll', updateIndicatorPosition);
-window.addEventListener('orientationchange', updateIndicatorPosition);
+function debouncedUpdate() {
+    clearTimeout(updateTimeout);
+    updateTimeout = setTimeout(updateIndicatorPosition, 16); // ~60fps
+}
 
-// Также проверяем периодически на мобильных
-setInterval(updateIndicatorPosition, 100);
+// Слушаем события
+window.addEventListener('resize', debouncedUpdate);
+window.addEventListener('scroll', debouncedUpdate);
+window.addEventListener('orientationchange', debouncedUpdate);
+
+// Запускаем
+updateIndicatorPosition();
+
 
 document.addEventListener("DOMContentLoaded", () => {
 	gsap.registerPlugin(ScrollTrigger, SplitText);
