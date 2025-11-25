@@ -850,7 +850,6 @@ h2{
 
 .card{
 	width: 100%;
-	max-width: 400px;
 	margin: 0 auto;
 	border-radius: 10px !important;
 }
@@ -898,6 +897,45 @@ h2{
 }
 .card-back p{
 	font-size: calc(var(--index)*1);
+}
+.meeting {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* экран полностью */
+  display: flex;
+  justify-content: center; /* горизонтальное центрирование */
+  align-items: center;     /* вертикальное центрирование */
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+.card-container {
+  position: relative;
+  width: 80%;
+  max-width: 350px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sticky-header {
+  position: absolute; /* чтобы изначально был под карточками */
+  top: 15%;           /* чуть выше центра */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;         /* чтобы карточки перекрывали заголовок в начале */
+  text-align: center;
+}
+
+.card {
+  width: 100%;
+  transform-origin: top center;
+  border-radius: 10px;
+	transform-style: preserve-3d;
+  backface-visibility: hidden;
+  position: absolute; /* накладываются друг на друга */
+  will-change: transform, opacity;
 }
 }
 

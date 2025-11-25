@@ -286,13 +286,70 @@ document.addEventListener("DOMContentLoaded", () => {
 		// ScrollTrigger.getAll().forEach((trigger) => trigger.kill()); //!!!!!!!!!!!!
 
 		const mm = gsap.matchMedia();
+mm.add("(max-width: 768px)", () => {
+  const cards = gsap.utils.toArray(".card");
+  const header = document.querySelector(".sticky-header");
+  const cardContainer = document.querySelector(".card-container");
 
-		mm.add("(max-width: 768px)", () => {
-			document
-				.querySelectorAll(".card, .card-container, .sticky-header h2")
-				.forEach((el) => (el.style = ""));
-			return {}
-		});
+  // Сбрасываем стили
+  gsap.set(cards, {
+  y: 100,
+    scale: 0.9,
+    opacity: 0,
+    rotationZ: 0, // добавляем сюда rotationZ
+    zIndex: 1,
+    left: 0,
+  });
+
+  ScrollTrigger.create({
+    trigger: ".meeting",
+    start: "top top",
+    end: "+=" + window.innerHeight,
+    scrub: true,
+    pin: true,
+    anticipatePin: 1,
+    onUpdate: (self) => {
+      const progress = self.progress;
+
+      // === Заголовок появляется в начале ===
+      gsap.to(header, {
+        opacity: progress < 0.1 ? progress * 10 : 1,
+        y: 40 * (1 - Math.min(progress * 10, 1)),
+        overwrite: true,
+      });
+
+      // === Первая карточка ===
+        const p1 = gsap.utils.clamp(0, 1, progress / 0.33);
+      gsap.set(cards[0], {
+        y: 0 + 30 * (1 - p1),
+        scale: 0.9 + 0.1 * p1,
+        opacity: p1,
+        rotationZ: -2 * p1,
+        zIndex: 1,
+      });
+
+      // Вторая карточка
+      const p2 = gsap.utils.clamp(0, 1, (progress - 0.33) / 0.33);
+      gsap.set(cards[1], {
+        y: 10 + 30 * (1 - p2),
+        scale: 0.88 + 0.12 * p2,
+        opacity: p2,
+        rotationZ: 5 * p2,
+        zIndex: 2,
+      });
+
+      // Третья карточка
+      const p3 = gsap.utils.clamp(0, 1, (progress - 0.66) / 0.34);
+      gsap.set(cards[2], {
+        y: 20 + 30 * (1 - p3),
+        scale: 0.86 + 0.14 * p3,
+        opacity: p3,
+        rotationZ: -5 * p3,
+        zIndex: 3,
+      });
+    },
+  });
+});
 
 		mm.add("(min-width: 769px)", () => {
 
