@@ -287,139 +287,161 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		const mm = gsap.matchMedia();
 
-		mm.add("(max-width: 1024px)", () => {
+		mm.add("(max-width: 768px)", () => {
 			document
 				.querySelectorAll(".card, .card-container, .sticky-header h2")
 				.forEach((el) => (el.style = ""));
 			return {}
 		});
 
-		mm.add("(min-width: 1025px)", () => {
-			ScrollTrigger.create({
-				trigger: ".meeting",
-				start: "top top",
-				end: `+=${window.innerHeight * 4}px`,
-				scrub: 1,
-				pin: true,
-				pinSpacing: true,
-				onUpdate: (self) => {
-					const progress = self.progress;
+		mm.add("(min-width: 769px)", () => {
 
-					if (progress >= 0.1 && progress <= 0.25) {
-						const headerProgress = gsap.utils.mapRange(
-							0.1,
-							0.25,
-							0,
-							1,
-							progress
-						);
-						const yValue = gsap.utils.mapRange(0, 1, 40, 0, headerProgress);
-						const opacityValue = gsap.utils.mapRange(
-							0,
-							1,
-							0,
-							1,
-							headerProgress
-						);
-						gsap.set(stickyHeader, {
-							y: yValue,
-							opacity: opacityValue,
-						});
-					} else if (progress < 0.1) {
-						gsap.set(stickyHeader, {
-							y: 40,
-							opacity: 0,
-						});
-					} else if (progress > 0.25) {
-						gsap.set(stickyHeader, {
-							y: 0,
-							opacity: 1,
-						});
-					}
+  // --- Новый адаптив ---
+  let startWidth;
+  let endWidth;
+  let finalWidth;
 
-					if (progress <= 0.25) {
-						const widthPercentage = gsap.utils.mapRange(
-							0,
-							0.25,
-							75,
-							60,
-							progress
-						);
-						gsap.set(cardContainer, { width: `${widthPercentage}%` });
-					} else {
-						gsap.set(cardContainer, { width: "60%" });
-					}
+  if (window.innerWidth >= 1420) {
+    // большой экран
+    startWidth = 75;
+    endWidth = 60;
+    finalWidth = "60%";
 
-					if (progress >= 0.35 && !isGapAnimationCompleted) {
-						gsap.to(cardContainer, {
-							gap: "20px",
-							duration: 0.5,
-							ease: "power3.out",
-						});
-							gsap.to(["#card-1", "#card-2", "#card-3"], {
-							borderRadius: "10px",
-							duration: 0.5,
-							ease: "power3.out",
-						});
+  } else if (window.innerWidth >= 1150) {
+    // средний экран
+    startWidth = 90;
+    endWidth = 80;
+    finalWidth = "80%";
 
-						isGapAnimationCompleted = true;
-					} else if (progress < 0.35 && isGapAnimationCompleted ) {
-						gsap.to(cardContainer, {
-							gap: "0px",
-							duration: 0.5,
-							ease: "power3.out",
-						});
-						gsap.to("#card-1", {
-							borderRadius: "10px 0 0 10px",
-							duration: 0.5,
-							ease: "power3.out",
-						});
-						gsap.to("#card-2", {
-							borderRadius: "0",
-							duration: 0.5,
-							ease: "power3.out",
-						});
-						gsap.to("#card-3", {
-							borderRadius: "0 10px 10px 0",
-							duration: 0.5,
-							ease: "power3.out",
-						});
+  } else {
+    // 769–1149
+    startWidth = 100;
+    endWidth = 100;
+    finalWidth = "100%";
+  }
 
-						isGapAnimationCompleted = false;
-					}
+  ScrollTrigger.create({
+    trigger: ".meeting",
+    start: "top top",
+    end: "+=" + window.innerHeight * 4 + "px",
+    scrub: 1,
+    pin: true,
+    pinSpacing: true,
 
-					if (progress >= 0.7 && !isFlipAnimationCompleted ) {
-						gsap.to(".card", {
-							rotationY: 180,
-							duration: 0.75,
-							ease: "power3.inOut",
-							stagger: 0.1,
-						});
-						gsap.to(["#card-1", "#card-3"], {
-							y: 30,
-							rotationZ: (i) => [-15, 15][i],
-							duration: 0.75,
-							ease: "power3.inOut",
-						});
-						isFlipAnimationCompleted = true;
-					} else if (progress < 0.7 && isFlipAnimationCompleted ) {
-						gsap.to(".card", {
-							rotationY: 0,
-							duration: 0.75,
-							ease: "power3.inOut",
-							stagger: -0.1,
-						});
-						gsap.to(["#card-1", "#card-3"], {
-							y: 0,
-							rotationZ: 0,
-							duration: 0.75,
-							ease: "power3.inOut",
-						});
-						isFlipAnimationCompleted = false;
-					}	
-				}
-			});
-		});
+    onUpdate: (self) => {
+      const progress = self.progress;
+
+      // =====================
+      // HEADER ANIMATION
+      // =====================
+      if (progress >= 0.1 && progress <= 0.25) {
+        const headerProgress = gsap.utils.mapRange(0.1, 0.25, 0, 1, progress);
+        gsap.set(stickyHeader, {
+          y: gsap.utils.mapRange(0, 1, 40, 0, headerProgress),
+          opacity: headerProgress,
+        });
+      } else if (progress < 0.1) {
+        gsap.set(stickyHeader, { y: 40, opacity: 0 });
+      } else if (progress > 0.25) {
+        gsap.set(stickyHeader, { y: 0, opacity: 1 });
+      }
+
+
+      // =====================
+      // CARD CONTAINER WIDTH  (адаптив)
+      // =====================
+      if (progress <= 0.25) {
+        const widthPercentage = gsap.utils.mapRange(
+          0,
+          0.25,
+          startWidth,
+          endWidth,
+          progress
+        );
+        gsap.set(cardContainer, { width: widthPercentage + "%" });
+      } else {
+        gsap.set(cardContainer, { width: finalWidth });
+      }
+
+
+      // =====================
+      // GAP + BORDER RADIUS
+      // =====================
+      if (progress >= 0.35 && !isGapAnimationCompleted) {
+        gsap.to(cardContainer, {
+          gap: "20px",
+          duration: 0.5,
+          ease: "power3.out",
+        });
+        gsap.to(["#card-1", "#card-2", "#card-3"], {
+          borderRadius: "10px",
+          duration: 0.5,
+          ease: "power3.out",
+        });
+        isGapAnimationCompleted = true;
+
+      } else if (progress < 0.35 && isGapAnimationCompleted) {
+        gsap.to(cardContainer, {
+          gap: "0px",
+          duration: 0.5,
+          ease: "power3.out",
+        });
+        gsap.to("#card-1", {
+          borderRadius: "10px 0 0 10px",
+          duration: 0.5,
+          ease: "power3.out",
+        });
+        gsap.to("#card-2", {
+          borderRadius: "0",
+          duration: 0.5,
+          ease: "power3.out",
+        });
+        gsap.to("#card-3", {
+          borderRadius: "0 10px 10px 0",
+          duration: 0.5,
+          ease: "power3.out",
+        });
+
+        isGapAnimationCompleted = false;
+      }
+
+
+      // =====================
+      // CARD FLIP
+      // =====================
+      if (progress >= 0.7 && !isFlipAnimationCompleted) {
+        gsap.to(".card", {
+          rotationY: 180,
+          duration: 0.75,
+          ease: "power3.inOut",
+          stagger: 0.1,
+        });
+        gsap.to(["#card-1", "#card-3"], {
+          y: 30,
+          rotationZ: (i) => [-15, 15][i],
+          duration: 0.75,
+          ease: "power3.inOut",
+        });
+        isFlipAnimationCompleted = true;
+
+      } else if (progress < 0.7 && isFlipAnimationCompleted) {
+        gsap.to(".card", {
+          rotationY: 0,
+          duration: 0.75,
+          ease: "power3.inOut",
+          stagger: -0.1,
+        });
+        gsap.to(["#card-1", "#card-3"], {
+          y: 0,
+          rotationZ: 0,
+          duration: 0.75,
+          ease: "power3.inOut",
+        });
+        isFlipAnimationCompleted = false;
+      }
+    }
+  });
+});
 	}
 
 	initAnimations();
