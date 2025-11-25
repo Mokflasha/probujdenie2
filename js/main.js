@@ -5,21 +5,24 @@ function updateIndicatorPosition() {
     const currentViewportHeight = window.innerHeight;
     
     // Если высота viewport изменилась (панель появилась/исчезла)
-    if (currentViewportHeight !== lastViewportHeight) {
-        const newTop = (currentViewportHeight * 0.8) / currentViewportHeight * 100;
-        indicator.style.top = `${newTop}%`;
+    if (Math.abs(currentViewportHeight - lastViewportHeight) > 10) {
+        // Рассчитываем позицию в пикселях от верха
+        const topInPixels = currentViewportHeight * 0.8;
+        indicator.style.top = `${topInPixels}px`;
         
         lastViewportHeight = currentViewportHeight;
+        console.log('Indicator position updated:', topInPixels, 'px');
     }
 }
 
 // Отслеживаем изменения размера окна
 window.addEventListener('resize', updateIndicatorPosition);
-window.addEventListener('scroll', updateIndicatorPosition); // на мобильных скролл меняет высоту
+window.addEventListener('scroll', updateIndicatorPosition);
 window.addEventListener('orientationchange', updateIndicatorPosition);
 
 // Также проверяем периодически на мобильных
 setInterval(updateIndicatorPosition, 100);
+
 document.addEventListener("DOMContentLoaded", () => {
 	gsap.registerPlugin(ScrollTrigger, SplitText);
 
